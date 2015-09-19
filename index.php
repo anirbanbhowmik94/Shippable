@@ -16,7 +16,7 @@
 <nav class="light-blue lighten-1" role="navigation">
 <div class="nav-wrapper container"><a id="logo-container" href="https://github.com" class="brand-logo">GitHub</a>
 <ul class="right hide-on-med-and-down">
-<li><a href="https://github.com/anirbanbhowmik94/ShippableAssignmentSubmission" target="_blank">View Source</a></li>
+<li><a href="https://github.com/anirbanbhowmik94/Shippable" target="_blank">View Source</a></li>
 </ul>
 </div>
 </nav>
@@ -39,6 +39,8 @@ $pullsweek=0;
 $openissuescount=0;
 $lastdaycount=0;
 $sevendaycount=0;
+$flag=0;
+$pg=1;
 if(isset($_POST['submit'])){
 $url = $_POST['url'];//Getting URL
 $array =  explode('/',$url);
@@ -51,10 +53,22 @@ die("</br>Please check the URL and try again. If the problem persists, kindly re
 $url = "https://api.github.com/repos/".$array[3]."/".$array[4];
 $result = getResults($url);
 $issues = $result["open_issues_count"];
-$url = "https://api.github.com/repos/".$array[3]."/".$array[4]."/pulls?state=open&per_page=1000";
+while($flag!=1){
+$url = "https://api.github.com/repos/".$array[3]."/".$array[4]."/pulls?page=".$pg."&state=open&per_page=100";
 $result = getResults($url);
-$pulls = count($result);
-$openissuescount = $issues-$pulls;//Since open issues consist of both issues and pull requests
+if(count($result)<100)
+{
+$pulls=$pulls+count($result);
+$flag=1;
+}
+else
+{
+$pulls=$pulls+100;
+$pg++;
+}
+}
+$openissuescount=$issues-$pulls;
+//Since open issues consist of both issues and pull requests
 //Required Time for fetching data for Number of issues opened during the last 24 hours
 $timelast24hr = date('Y-m-d\TH:i:s.Z\Z', strtotime("-1 day", time()));
 $url = "https://api.github.com/repos/".$array[3]."/".$array[4]."/issues?state=open&per_page=100&since=".$timelast24hr;     
